@@ -83,7 +83,7 @@ class customGameObj {
         texture2 = new ThreeJsInstance.MeshBasicMaterial({
           color: 0x40ff00,
           transparent: true,
-          opacity: 0.5,
+          opacity: 0.8,
         });
         playergeometry = new ThreeJsInstance.SphereGeometry(3, 16, 8);
         customWorldRadius = worldRadius + 3;

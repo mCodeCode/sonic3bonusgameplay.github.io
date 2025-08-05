@@ -74,7 +74,7 @@ document.addEventListener("keydown", (event) => {
       playerData.mesh.position.y,
       playerData.mesh.position.z
     );
-    const angle = -0.3;
+    const angle = -0.2;
     threeJsHelper.worldGroup.rotateOnWorldAxis(startPoint.normalize(), angle);
   }
   if (event.key === "d") {
@@ -83,7 +83,7 @@ document.addEventListener("keydown", (event) => {
       playerData.mesh.position.y,
       playerData.mesh.position.z
     );
-    const angle = 0.3;
+    const angle = 0.2;
     threeJsHelper.worldGroup.rotateOnWorldAxis(startPoint.normalize(), angle);
   }
 });
@@ -181,13 +181,15 @@ function main() {
       threeJsHelper.camera.updateProjectionMatrix();
     }
 
-    //QQQ
-    updateWorld();
+    if (threeJsHelper.stopGame) {
+      window.cancelAnimationFrame(intervalId);
+    } else if (!threeJsHelper.stopUpdating) {
+      updateWorld();
+      //render results on screen
+      threeJsHelper.renderer.render(threeJsHelper.scene, threeJsHelper.camera);
 
-    //render results on screen
-    threeJsHelper.renderer.render(threeJsHelper.scene, threeJsHelper.camera);
-
-    intervalId = requestAnimationFrame(renderLoop);
+      intervalId = requestAnimationFrame(renderLoop);
+    }
   }
 
   intervalId = requestAnimationFrame(renderLoop);

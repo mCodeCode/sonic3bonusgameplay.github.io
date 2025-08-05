@@ -84,7 +84,41 @@ camera.rotateY(22);
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
+const addToScene = (mesh) => {
+  scene.add(mesh); // draw mesh
+};
+//----------------------------------------------------
+//----------------------------------------------------
+const removeMeshAndGeomFromScene = (mesh) => {
+  try {
+    if (mesh && mesh.geometry && mesh.material) {
+      // Remove from scene
+      scene.remove(mesh);
 
+      // Dispose of geometry and material
+      mesh.geometry.dispose();
+      mesh.material.dispose();
+
+      // Optionally, dispose of textures used by the material
+      if (mesh.material.map) {
+        mesh.material.map.dispose();
+      }
+      if (mesh.material.normalMap) {
+        mesh.material.normalMap.dispose();
+      }
+      if (mesh.material.bumpMap) {
+        mesh.material.bumpMap.dispose();
+      }
+
+      // Null out properties to prevent holding references
+      mesh.geometry = null;
+      mesh.material = null;
+      mesh = null;
+    }
+  } catch (error) {
+    console.log("QQQ error deleting mesh.  ", error);
+  }
+};
 //----------------------------------------------------
 //----------------------------------------------------
 //create a group to rotate all the objects in the world at the same time
@@ -119,10 +153,32 @@ worldGroup.add(worldwireLine);
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
-const checkOverlap = (newObject, existingObjects) => {
+const checkOverlapOnUpdate = (newObject, existingObjects) => {
+  const raycaster = new THREE.Raycaster();
+  const origin = new THREE.Vector3();
+  newObject.mesh.getWorldPosition(origin); // Get the object's world position
+
+  const direction = new THREE.Vector3(0, 0, -1); // Assuming the object's local forward is -Z
+  newObject.mesh.getWorldDirection(direction); // Transform the local forward to world direction
+
+  raycaster.set(origin, direction);
+
+  let raycastArr = [];
+  for (const existingObject of existingObjects) {
+    raycastArr.push(existingObject.obstacle.mesh);
+  }
+
+  const intersects = raycaster.intersectObjects(raycastArr, true);
+  // console.log("QQQ  intersects    ", intersects[0]);
+  return intersects;
+};
+
+const checkOverlapOnSpawn = (newObject, existingObjects) => {
   const newBox = new THREE.Box3().setFromObject(newObject); // Or Sphere
   for (const existingObject of existingObjects) {
-    const existingBox = new THREE.Box3().setFromObject(existingObject);
+    const existingBox = new THREE.Box3().setFromObject(
+      existingObject.obstacle.mesh
+    );
     if (newBox.intersectsBox(existingBox)) {
       // Or intersectsSphere
       return true; // Overlap detected
@@ -140,13 +196,11 @@ const spawnObstacles = () => {
   //--------------
   // instance a list of cones (obstacles)
   //store positions so that they dont repeat
-  // let obstacleLats = [];
-  // let obstacleLongs = [];
-
-  let obstaclesToSpawn = globalsFile.getRandomIntInclusive(30, 120);
+  let obstaclesToSpawn = globalsFile.getRandomIntInclusive(30, 40);
   for (let c = 0; c < obstaclesToSpawn; c++) {
-    let randomLat = globalsFile.getRandomNum(-Math.PI, Math.PI);
-    let randomLon = globalsFile.getRandomNum(0, Math.PI * 2);
+    let randomLat = globalsFile.getRandomNum(Math.PI, 1.0);
+
+    let randomLon = globalsFile.getRandomNum(Math.PI * 2, 0.5);
 
     let obstacle = new gameObjectsFile.customGameObj(
       THREE,
@@ -156,37 +210,41 @@ const spawnObstacles = () => {
       "obstacle"
     );
 
-    const WireEdges = new THREE.EdgesGeometry(obstacle.mesh.geometry);
-    const wireLine = new THREE.LineSegments(
-      WireEdges,
-      new THREE.LineBasicMaterial({ color: "black" })
-    );
-    obstacle.wireline = wireLine;
+    if (!checkOverlapOnSpawn(obstacle.mesh, obstaclesArr)) {
+      console.log("QQQ added ");
+      const WireEdges = new THREE.EdgesGeometry(obstacle.mesh.geometry);
+      const wireLine = new THREE.LineSegments(
+        WireEdges,
+        new THREE.LineBasicMaterial({ color: "white" })
+      );
+      obstacle.wireline = wireLine;
 
-    if (!checkOverlap(obstacle.mesh, obstaclesArr)) {
       worldGroup.add(obstacle.mesh);
-      worldGroup.add(wireLine);
-      obstaclesArr.push(obstacle.mesh);
+      worldGroup.add(obstacle.wireline);
+      obstaclesArr.push({ obstacle: obstacle, index: obstaclesArr.length });
       let cameraSphericalq = new THREE.Spherical();
       cameraSphericalq.set(obstacle.radius, randomLat, randomLon);
       let pointOnSphereq = new THREE.Vector3();
       pointOnSphereq.setFromSpherical(cameraSphericalq);
       //--------------
       // obstacle.mesh.position.set(pointOnSphereq.x, pointOnSphereq.y, pointOnSphereq.z);
-      wireLine.position.set(
+      obstacle.wireline.position.set(
         pointOnSphereq.x,
         pointOnSphereq.y,
         pointOnSphereq.z
       );
-      wireLine.lookAt(world.position);
-      wireLine.rotateX(-1.5);
+      obstacle.wireline.lookAt(world.position);
+      obstacle.wireline.rotateX(-1.5);
       obstacle.mesh.lookAt(world.position);
       obstacle.mesh.rotateX(-1.5);
+    } else {
+      console.log("QQQ NOT added ");
     }
   }
 };
 
-spawnObstacles();
+// spawnObstacles();
+console.log("QQQ obs array  ", obstaclesArr.length);
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
@@ -203,15 +261,15 @@ const spawnObjectives = () => {
   //longitude are the vertical lines, and goes from 0 to 180
   //with 0 being the central ring of the sphere
 
-  let start1 = globalsFile.getRandomIntInclusive(40, 60);
-  let start2 = globalsFile.getRandomIntInclusive(-60, -40);
+  let start1 = globalsFile.getRandomIntInclusive(70, 40);
+  let start2 = globalsFile.getRandomIntInclusive(-70, -40);
   let startObjectivesLat =
     globalsFile.getRandomIntInclusive(0, 1) > 0 ? start1 : start2;
   let loopLat = globalsFile.convertDegreesToRadians(startObjectivesLat);
   let spawnRows = 0;
-  let latitudeStep = globalsFile.convertDegreesToRadians(15);
+  let latitudeStep = globalsFile.convertDegreesToRadians(40);
   let longitudeArc = globalsFile.convertDegreesToRadians(50); // vary for different square sizes
-  let loopLonStep = globalsFile.convertDegreesToRadians(8.5);
+  let loopLonStep = globalsFile.convertDegreesToRadians(20);
   //pick a starting latitude
   //loop
   //sweep around that, increment lon by amount of spheres
@@ -228,25 +286,25 @@ const spawnObjectives = () => {
         "objective"
       );
 
-      if (!checkOverlap(obstacle.mesh, obstaclesArr)) {
-        const WireEdges = new THREE.EdgesGeometry(obstacle.mesh.geometry);
-        const wireLine = new THREE.LineSegments(
-          WireEdges,
-          new THREE.LineBasicMaterial({ color: "green" })
-        );
-        obstacle.wireline = wireLine;
+      if (!checkOverlapOnSpawn(obstacle.mesh, obstaclesArr)) {
+        // const WireEdges = new THREE.EdgesGeometry(obstacle.mesh.geometry);
+        // const wireLine = new THREE.LineSegments(
+        //   WireEdges,
+        //   new THREE.LineBasicMaterial({ color: "green" })
+        // );
+        // obstacle.wireline = wireLine;
         worldGroup.add(obstacle.mesh);
-        objectivesArr.push(obstacle.mesh);
-        worldGroup.add(wireLine);
+        // worldGroup.add(obstacle.wireline);
+        objectivesArr.push({ obstacle: obstacle, index: objectivesArr.length });
         let cameraSphericalq = new THREE.Spherical();
         cameraSphericalq.set(obstacle.radius, loopLat, lon);
         let pointOnSphereq = new THREE.Vector3();
         pointOnSphereq.setFromSpherical(cameraSphericalq);
-        wireLine.position.set(
-          pointOnSphereq.x,
-          pointOnSphereq.y,
-          pointOnSphereq.z
-        );
+        // wireLine.position.set(
+        //   pointOnSphereq.x,
+        //   pointOnSphereq.y,
+        //   pointOnSphereq.z
+        // );
       }
     }
 
@@ -255,10 +313,11 @@ const spawnObjectives = () => {
   }
 };
 
-spawnObjectives();
-spawnObjectives();
-spawnObjectives();
+// spawnObjectives();
+// spawnObjectives();
+// spawnObjectives();
 console.log("QQQ objectives size : ", objectivesArr.length);
+let objectivesCompleted = 0;
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
@@ -268,7 +327,9 @@ console.log("QQQ objectives size : ", objectivesArr.length);
 
 //--------------
 // instance a list of treasures
+let treasureCollected = 0;
 let randomTreasure = globalsFile.getRandomNum(50, 110);
+let treasureArr = [];
 for (let c = 0; c < randomTreasure; c++) {
   let randomLat = globalsFile.getRandomNum(0, 55);
   let randomLon = globalsFile.getRandomNum(0, 55);
@@ -281,9 +342,10 @@ for (let c = 0; c < randomTreasure; c++) {
     "treasure"
   );
 
-  let overlapObstacles = checkOverlap(obstacle.mesh, obstaclesArr);
-  let overlapObjectives = checkOverlap(obstacle.mesh, objectivesArr);
+  let overlapObstacles = checkOverlapOnSpawn(obstacle.mesh, obstaclesArr);
+  let overlapObjectives = checkOverlapOnSpawn(obstacle.mesh, objectivesArr);
   if (!overlapObstacles && !overlapObjectives) {
+    treasureArr.push({ obstacle: obstacle, index: treasureArr.length });
     worldGroup.add(obstacle.mesh);
     let cameraSphericalq = new THREE.Spherical();
     cameraSphericalq.set(obstacle.radius, randomLat, randomLon);
@@ -294,6 +356,8 @@ for (let c = 0; c < randomTreasure; c++) {
     obstacle.mesh.rotateX(-1.5);
   }
 }
+
+const totalTreasure = treasureArr.length;
 
 //----------------------------------------------------
 //----------------------------------------------------
@@ -403,6 +467,8 @@ scene.add(worldGroup);
 // cone.rotateX(59.5);
 // camera.rotateZ(150);
 //shapes and lines functions
+let stopGame = false;
+let stopUpdating = false;
 const updateWorld = (
   playerData,
   cameraRadius,
@@ -415,6 +481,7 @@ const updateWorld = (
   //------------------------------
   //------------------------------
   //update player position
+  stopUpdating = true;
 
   playerData.latitude += 0.01;
   playerData.mesh.rotateX(0.01);
@@ -450,20 +517,67 @@ const updateWorld = (
   const pointOnWorldSphere = new THREE.Vector3();
   pointOnWorldSphere.setFromSpherical(cameraSpherical);
   //--------------
-  // cone.position.set(
-  //   pointOnWorldSphere.x,
-  //   pointOnWorldSphere.y,
-  //   pointOnWorldSphere.z
-  // );
-  // cone.rotateX(0.1);
-
-  //--------------
   camera.position.set(
     pointOnWorldSphere.x,
     pointOnWorldSphere.y,
     pointOnWorldSphere.z
   );
-  // camera.rotateX(-0.1);
+
+  //----------------------------
+  //----------------------------
+  // check if player collides with something
+
+  //obstacles
+  let playerCol = checkOverlapOnUpdate(playerData, obstaclesArr);
+  if (playerCol.length > 0 && playerCol[0].distance <= 2) {
+    console.log("QQQ UI GAME OVER");
+    stopGame = true;
+  }
+
+  //objectives
+  playerCol = undefined;
+  playerCol = checkOverlapOnUpdate(playerData, objectivesArr);
+  if (playerCol.length > 0 && playerCol[0].distance <= 1.5) {
+    let currColor = playerCol[0].object.material.color;
+    if (currColor.r === 1 && currColor.g === 0 && currColor.b === 0) {
+      //the objective has already been completed before, so game over
+      console.log("QQQ UI GAME OVER");
+      stopGame = true;
+    }
+    playerCol[0].object.material.color.setRGB(1, 0, 0);
+    objectivesCompleted += 1;
+    console.log(
+      `QQQ Objectives completed:  ${objectivesCompleted} / ${objectivesArr.length}`
+    );
+  }
+
+  //treasure
+  playerCol = undefined;
+  let idToDelete = null;
+  playerCol = checkOverlapOnUpdate(playerData, treasureArr);
+  console.log("QQQ playerCol ", playerCol);
+  if (playerCol.length > 0 && playerCol[0].distance <= 15) {
+    treasureCollected += 1;
+    console.log(`QQQ playerCol[0].distance`, playerCol[0].distance);
+    console.log(
+      `QQQ Treasure collected:  ${treasureCollected} / ${totalTreasure}`
+    );
+    idToDelete = playerCol[0].object.uuid;
+    worldGroup.remove(playerCol[0].object);
+    scene.remove(playerCol[0].object);
+
+    let tmpLen = treasureArr.length;
+
+    for (let i = 0; i < tmpLen; i++) {
+      const element = treasureArr[i];
+      if (element.obstacle.mesh.uuid === idToDelete) {
+        treasureArr.splice(i, 1);
+        i = 999999;
+      }
+    }
+  }
+
+  stopUpdating = false;
 };
 
 const testCamRotation = (direction) => {
@@ -528,41 +642,6 @@ const testCamRotation = (direction) => {
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
-const addToScene = (mesh) => {
-  scene.add(mesh); // draw mesh
-};
-//----------------------------------------------------
-//----------------------------------------------------
-const removeMeshAndGeomFromScene = (mesh) => {
-  try {
-    if (mesh && mesh.geometry && mesh.material) {
-      // Remove from scene
-      scene.remove(mesh);
-
-      // Dispose of geometry and material
-      mesh.geometry.dispose();
-      mesh.material.dispose();
-
-      // Optionally, dispose of textures used by the material
-      if (mesh.material.map) {
-        mesh.material.map.dispose();
-      }
-      if (mesh.material.normalMap) {
-        mesh.material.normalMap.dispose();
-      }
-      if (mesh.material.bumpMap) {
-        mesh.material.bumpMap.dispose();
-      }
-
-      // Null out properties to prevent holding references
-      mesh.geometry = null;
-      mesh.material = null;
-      mesh = null;
-    }
-  } catch (error) {
-    console.log("QQQ error deleting mesh.  ", error);
-  }
-};
 
 //----------------------------------------------------
 //----------------------------------------------------
@@ -578,4 +657,6 @@ export {
   worldGroup,
   world,
   worldRadius,
+  stopGame,
+  stopUpdating,
 };
