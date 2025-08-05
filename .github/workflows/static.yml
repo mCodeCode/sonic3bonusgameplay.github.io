@@ -37,12 +37,6 @@ jobs:
         run: npm install
       - name: BUILD APP
         run: npm run build
-      - name: check environment
-        run: ls
-      - name: check environment 2 (ls dist)
-        run: ls dist
-      - name: COPY FILES TO dist/assets
-        run: cp gameObjectsCode.js dist/assets/gameObjectsCode.js
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
