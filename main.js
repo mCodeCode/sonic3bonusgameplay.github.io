@@ -13,7 +13,7 @@ let playerData = new PlayerClass(
   0
 );
 // console.log("QQQ ", playerData);
-//-------
+//------
 //add player to world
 threeJsHelper.scene.add(playerData.mesh);
 threeJsHelper.scene.add(playerData.wireLine);
