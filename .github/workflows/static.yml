@@ -39,8 +39,10 @@ jobs:
         run: npm run build
       - name: check environment
         run: ls
-      - name: check parent environment
-        run: ../ls
+      - name: check environment 2 (ls dist)
+        run: ls dist
+      - name: check environment 3 (ls)
+        run: ls
       - name: COPY FILES TO dist/assets
         run: npm run copyfiles
       - name: Setup Pages
