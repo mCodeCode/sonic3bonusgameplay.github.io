@@ -41,10 +41,8 @@ jobs:
         run: ls
       - name: check environment 2 (ls dist)
         run: ls dist
-      - name: check environment 3 (ls)
-        run: ls
       - name: COPY FILES TO dist/assets
-        run: npm run copyfiles
+        run: cp gameObjectsCode.js dist/assets/gameObjectsCode.js
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
