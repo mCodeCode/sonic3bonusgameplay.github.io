@@ -4,6 +4,7 @@
     "vite": "^6.3.5"
   },
   "scripts": {
-    "build": "vite build"
+    "build": "vite build",
+    "copyfiles": "cp gameObjectsCode.js /dist/assets/gameObjectsCode.js"
   }
 }
