@@ -85,8 +85,8 @@ class customGameObj {
           transparent: true,
           opacity: 0.8,
         });
-        playergeometry = new ThreeJsInstance.SphereGeometry(3, 16, 8);
-        customWorldRadius = worldRadius + 3;
+        playergeometry = new ThreeJsInstance.SphereGeometry(5, 16, 8);
+        customWorldRadius = worldRadius + 5;
         break;
       case "treasure":
         //rings
@@ -95,8 +95,9 @@ class customGameObj {
           transparent: true,
           opacity: 0.9,
         });
-        playergeometry = new ThreeJsInstance.TorusGeometry(2, 0.5, 16, 26);
-        customWorldRadius = worldRadius + 2;
+        // playergeometry = new ThreeJsInstance.TorusGeometry(5, 1.5, 16, 26);
+        playergeometry = new ThreeJsInstance.OctahedronGeometry(5, 0);
+        customWorldRadius = worldRadius + 5;
         break;
 
       default:

@@ -243,7 +243,7 @@ const spawnObstacles = () => {
   }
 };
 
-// spawnObstacles();
+spawnObstacles();
 console.log("QQQ obs array  ", obstaclesArr.length);
 //----------------------------------------------------
 //----------------------------------------------------
@@ -267,7 +267,7 @@ const spawnObjectives = () => {
     globalsFile.getRandomIntInclusive(0, 1) > 0 ? start1 : start2;
   let loopLat = globalsFile.convertDegreesToRadians(startObjectivesLat);
   let spawnRows = 0;
-  let latitudeStep = globalsFile.convertDegreesToRadians(40);
+  let latitudeStep = globalsFile.convertDegreesToRadians(20);
   let longitudeArc = globalsFile.convertDegreesToRadians(50); // vary for different square sizes
   let loopLonStep = globalsFile.convertDegreesToRadians(20);
   //pick a starting latitude
@@ -276,7 +276,7 @@ const spawnObjectives = () => {
   //increment longitude += step  (to go around latitude ring)
   //loop
 
-  while (spawnRows < 6) {
+  while (spawnRows < 7) {
     for (let lon = 0; lon < longitudeArc; lon += loopLonStep) {
       let obstacle = new gameObjectsFile.customGameObj(
         THREE,
@@ -286,7 +286,10 @@ const spawnObjectives = () => {
         "objective"
       );
 
-      if (!checkOverlapOnSpawn(obstacle.mesh, obstaclesArr)) {
+      if (
+        !checkOverlapOnSpawn(obstacle.mesh, obstaclesArr) &&
+        !checkOverlapOnSpawn(obstacle.mesh, objectivesArr)
+      ) {
         // const WireEdges = new THREE.EdgesGeometry(obstacle.mesh.geometry);
         // const wireLine = new THREE.LineSegments(
         //   WireEdges,
@@ -313,9 +316,9 @@ const spawnObjectives = () => {
   }
 };
 
-// spawnObjectives();
-// spawnObjectives();
-// spawnObjectives();
+spawnObjectives();
+spawnObjectives();
+
 console.log("QQQ objectives size : ", objectivesArr.length);
 let objectivesCompleted = 0;
 //----------------------------------------------------
@@ -555,10 +558,10 @@ const updateWorld = (
   playerCol = undefined;
   let idToDelete = null;
   playerCol = checkOverlapOnUpdate(playerData, treasureArr);
-  console.log("QQQ playerCol ", playerCol);
-  if (playerCol.length > 0 && playerCol[0].distance <= 15) {
+  // console.log("QQQ playerCol ", playerCol);
+  if (playerCol.length > 0 && playerCol[0].distance <= 3) {
     treasureCollected += 1;
-    console.log(`QQQ playerCol[0].distance`, playerCol[0].distance);
+    // console.log(`QQQ playerCol[0].distance`, playerCol[0].distance);
     console.log(
       `QQQ Treasure collected:  ${treasureCollected} / ${totalTreasure}`
     );
@@ -572,7 +575,7 @@ const updateWorld = (
       const element = treasureArr[i];
       if (element.obstacle.mesh.uuid === idToDelete) {
         treasureArr.splice(i, 1);
-        i = 999999;
+        i = 9999;
       }
     }
   }
