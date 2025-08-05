@@ -127,3 +127,5 @@ class customGameObj {
     this.mesh.position.set(pointOnSphere.x, pointOnSphere.y, pointOnSphere.z);
   }
 }
+
+export { PlayerClass, customGameObj };

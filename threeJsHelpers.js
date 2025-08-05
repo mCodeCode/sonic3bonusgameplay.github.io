@@ -2,6 +2,8 @@
 //----------------------------------------------------
 //----------------------------------------------------
 import * as THREE from "three";
+import * as globalsFile from "./globals.js";
+import * as gameObjectsFile from "./gameObjectsCode.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 // import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 //----------------------------------------------------
@@ -161,12 +163,12 @@ const spawnObstacles = () => {
   // let obstacleLats = [];
   // let obstacleLongs = [];
 
-  let obstaclesToSpawn = getRandomIntInclusive(30, 120);
+  let obstaclesToSpawn = globalsFile.getRandomIntInclusive(30, 120);
   for (let c = 0; c < obstaclesToSpawn; c++) {
-    let randomLat = getRandomNum(-Math.PI, Math.PI);
-    let randomLon = getRandomNum(0, Math.PI * 2);
+    let randomLat = globalsFile.getRandomNum(-Math.PI, Math.PI);
+    let randomLon = globalsFile.getRandomNum(0, Math.PI * 2);
 
-    let obstacle = new customGameObj(
+    let obstacle = new gameObjectsFile.customGameObj(
       THREE,
       loader,
       worldRadius,
@@ -222,14 +224,15 @@ const spawnObjectives = () => {
   //longitude are the vertical lines, and goes from 0 to 180
   //with 0 being the central ring of the sphere
 
-  let start1 = getRandomIntInclusive(40, 60);
-  let start2 = getRandomIntInclusive(-60, -40);
-  let startObjectivesLat = getRandomIntInclusive(0, 1) > 0 ? start1 : start2;
-  let loopLat = convertDegreesToRadians(startObjectivesLat);
+  let start1 = globalsFile.getRandomIntInclusive(40, 60);
+  let start2 = globalsFile.getRandomIntInclusive(-60, -40);
+  let startObjectivesLat =
+    globalsFile.getRandomIntInclusive(0, 1) > 0 ? start1 : start2;
+  let loopLat = globalsFile.convertDegreesToRadians(startObjectivesLat);
   let spawnRows = 0;
-  let latitudeStep = convertDegreesToRadians(12);
-  let longitudeArc = convertDegreesToRadians(50); // vary for different square sizes
-  let loopLonStep = convertDegreesToRadians(8.5);
+  let latitudeStep = globalsFile.convertDegreesToRadians(12);
+  let longitudeArc = globalsFile.convertDegreesToRadians(50); // vary for different square sizes
+  let loopLonStep = globalsFile.convertDegreesToRadians(8.5);
   //pick a starting latitude
   //loop
   //sweep around that, increment lon by amount of spheres
@@ -238,7 +241,7 @@ const spawnObjectives = () => {
 
   while (spawnRows < 4) {
     for (let lon = 0; lon < longitudeArc; lon += loopLonStep) {
-      let obstacle = new customGameObj(
+      let obstacle = new gameObjectsFile.customGameObj(
         THREE,
         loader,
         worldRadius,
@@ -287,10 +290,10 @@ spawnObjectives();
 //--------------
 // instance a list of treasures
 for (let c = 0; c < 25; c++) {
-  let randomLat = getRandomNum(0, 55);
-  let randomLon = getRandomNum(0, 55);
+  let randomLat = globalsFile.getRandomNum(0, 55);
+  let randomLon = globalsFile.getRandomNum(0, 55);
 
-  let obstacle = new customGameObj(
+  let obstacle = new gameObjectsFile.customGameObj(
     THREE,
     loader,
     worldRadius,

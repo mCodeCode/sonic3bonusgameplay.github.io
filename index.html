@@ -10,10 +10,11 @@
     </style>
   </head>
   <body>
+    <!--cannot bundle scripts without the module type -->
     <canvas id="c" style="background-color: black"></canvas>
-    <script src="/globals.js"></script>
+    <script type="module" src="/globals.js"></script>
+    <script type="module" src="/gameObjectsCode.js"></script>
     <script type="module" src="/threeJsHelpers.js"></script>
-    <script src="/gameObjectsCode.js"></script>
     <script type="module" src="/main.js"></script>
   </body>
 </html>

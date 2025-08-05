@@ -1,11 +1,11 @@
 import * as threeJsHelper from "./threeJsHelpers.js";
-
+import * as gameObjectsFile from "./gameObjectsCode.js";
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
 //instantiate player and world
-let playerData = new PlayerClass(
+let playerData = new gameObjectsFile.PlayerClass(
   threeJsHelper.THREE,
   threeJsHelper.loader,
   threeJsHelper.worldRadius,

@@ -59,3 +59,7 @@ function convertDegreesToRadians(degrees) {
 function removeDecimals(fromNumber) {
   return Number.parseFloat(fromNumber).toFixed(7);
 }
+
+//----------------------------------------------------
+//----------------------------------------------------
+export { getRandomIntInclusive, getRandomNum, convertDegreesToRadians };
