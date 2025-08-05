@@ -7,7 +7,6 @@ import * as gameObjectsFile from "./gameObjectsCode.js";
 //instantiate player and world
 let playerData = new gameObjectsFile.PlayerClass(
   threeJsHelper.THREE,
-  threeJsHelper.loader,
   threeJsHelper.worldRadius,
   0,
   0

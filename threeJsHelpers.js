@@ -4,8 +4,6 @@
 import * as THREE from "three";
 import * as globalsFile from "./globals.js";
 import * as gameObjectsFile from "./gameObjectsCode.js";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-// import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
@@ -32,11 +30,6 @@ camera.rotateY(22);
 
 //----------------------------------------------------
 //----------------------------------------------------
-//camera and scene setup  // QQQ remove later
-// const controls = new OrbitControls(camera, canvas);
-// controls.target.set(0, 5, 0);
-// controls.update();
-
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
@@ -91,19 +84,6 @@ camera.rotateY(22);
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
-//----------------------------------------------------
-//----------------------------------------------------
-
-// // 1. Instantiate TextureLoader
-const loader = new THREE.TextureLoader();
-
-// // 2. Load the Texture
-// const worldTextureFile = loader.load("./files/green_grid_1.png"); // Replace with your texture path
-
-// // 3. Create MeshBasicMaterial and Apply Texture
-// const worldMaterial = new THREE.MeshBasicMaterial({
-//   map: worldTextureFile,
-// });
 
 //----------------------------------------------------
 //----------------------------------------------------
@@ -170,7 +150,6 @@ const spawnObstacles = () => {
 
     let obstacle = new gameObjectsFile.customGameObj(
       THREE,
-      loader,
       worldRadius,
       randomLat,
       randomLon,
@@ -230,7 +209,7 @@ const spawnObjectives = () => {
     globalsFile.getRandomIntInclusive(0, 1) > 0 ? start1 : start2;
   let loopLat = globalsFile.convertDegreesToRadians(startObjectivesLat);
   let spawnRows = 0;
-  let latitudeStep = globalsFile.convertDegreesToRadians(12);
+  let latitudeStep = globalsFile.convertDegreesToRadians(15);
   let longitudeArc = globalsFile.convertDegreesToRadians(50); // vary for different square sizes
   let loopLonStep = globalsFile.convertDegreesToRadians(8.5);
   //pick a starting latitude
@@ -239,11 +218,10 @@ const spawnObjectives = () => {
   //increment longitude += step  (to go around latitude ring)
   //loop
 
-  while (spawnRows < 4) {
+  while (spawnRows < 6) {
     for (let lon = 0; lon < longitudeArc; lon += loopLonStep) {
       let obstacle = new gameObjectsFile.customGameObj(
         THREE,
-        loader,
         worldRadius,
         loopLat,
         lon,
@@ -280,6 +258,7 @@ const spawnObjectives = () => {
 spawnObjectives();
 spawnObjectives();
 spawnObjectives();
+console.log("QQQ objectives size : ", objectivesArr.length);
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
@@ -289,37 +268,31 @@ spawnObjectives();
 
 //--------------
 // instance a list of treasures
-for (let c = 0; c < 25; c++) {
+let randomTreasure = globalsFile.getRandomNum(50, 110);
+for (let c = 0; c < randomTreasure; c++) {
   let randomLat = globalsFile.getRandomNum(0, 55);
   let randomLon = globalsFile.getRandomNum(0, 55);
 
   let obstacle = new gameObjectsFile.customGameObj(
     THREE,
-    loader,
     worldRadius,
     randomLat,
     randomLon,
     "treasure"
   );
-  // const WireEdges = new THREE.EdgesGeometry(obstacle.mesh.geometry);
-  // const wireLine = new THREE.LineSegments(
-  //   WireEdges,
-  //   new THREE.LineBasicMaterial({ color: "black" })
-  // );
-  // obstacle.wireline = wireLine;
-  worldGroup.add(obstacle.mesh);
-  // worldGroup.add(wireLine);
-  let cameraSphericalq = new THREE.Spherical();
-  cameraSphericalq.set(obstacle.radius, randomLat, randomLon);
-  let pointOnSphereq = new THREE.Vector3();
-  pointOnSphereq.setFromSpherical(cameraSphericalq);
-  //--------------
-  // obstacle.mesh.position.set(pointOnSphereq.x, pointOnSphereq.y, pointOnSphereq.z);
-  // wireLine.position.set(pointOnSphereq.x, pointOnSphereq.y, pointOnSphereq.z);
-  // wireLine.lookAt(world.position);
-  // wireLine.rotateX(-1.5);
-  obstacle.mesh.lookAt(world.position);
-  obstacle.mesh.rotateX(-1.5);
+
+  let overlapObstacles = checkOverlap(obstacle.mesh, obstaclesArr);
+  let overlapObjectives = checkOverlap(obstacle.mesh, objectivesArr);
+  if (!overlapObstacles && !overlapObjectives) {
+    worldGroup.add(obstacle.mesh);
+    let cameraSphericalq = new THREE.Spherical();
+    cameraSphericalq.set(obstacle.radius, randomLat, randomLon);
+    let pointOnSphereq = new THREE.Vector3();
+    pointOnSphereq.setFromSpherical(cameraSphericalq);
+
+    obstacle.mesh.lookAt(world.position);
+    obstacle.mesh.rotateX(-1.5);
+  }
 }
 
 //----------------------------------------------------
@@ -602,7 +575,6 @@ export {
   camera,
   renderer,
   scene,
-  loader,
   worldGroup,
   world,
   worldRadius,

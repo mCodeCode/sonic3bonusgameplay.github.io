@@ -7,7 +7,7 @@ class PlayerClass {
 
   wireLine = null;
 
-  constructor(ThreeJsInstance, loader, worldRadius, latitude, longitude) {
+  constructor(ThreeJsInstance, worldRadius, latitude, longitude) {
     // 2. Load the Texture
     // const texture2File = loader.load("./files/purple_orange_squares.jpg");
     // const texture2 = new ThreeJsInstance.MeshBasicMaterial({
@@ -56,14 +56,7 @@ class customGameObj {
   entityState = null;
   wireline = null;
 
-  constructor(
-    ThreeJsInstance,
-    loader,
-    worldRadius,
-    latitude,
-    longitude,
-    entityType
-  ) {
+  constructor(ThreeJsInstance, worldRadius, latitude, longitude, entityType) {
     // const texture2File = loader.load("./files/blue_night_floor.png");
     // const texture2 = new ThreeJsInstance.MeshBasicMaterial({
     //   map: texture2File,
