@@ -2,7 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>test sonic mini game</title>
+    <title>based on sonic 3 bonus zone</title>
+    <link rel="stylesheet" type="text/css" href="./UI.css" />
     <style>
       body {
         margin: 0;
@@ -11,7 +12,17 @@
   </head>
   <body>
     <!--cannot bundle scripts without the module type -->
-    <canvas id="c" style="background-color: black"></canvas>
+    <div id="game-UI-and-canvas-holder">
+      <div id="UIdiv">
+        <div id="main-menu-div">
+          <div>GAME TITLE</div>
+          <button id="start-game-btn">START GAME</button>
+        </div>
+        <div id="objectives-div">OBJECTIVES</div>
+        <div id="treasure-div">TREASURE</div>
+      </div>
+      <canvas id="c" style="background-color: black"></canvas>
+    </div>
     <script type="module" src="/globals.js"></script>
     <script type="module" src="/gameObjectsCode.js"></script>
     <script type="module" src="/threeJsHelpers.js"></script>

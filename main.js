@@ -1,46 +1,4 @@
 import * as threeJsHelper from "./threeJsHelpers.js";
-import * as gameObjectsFile from "./gameObjectsCode.js";
-//----------------------------------------------------
-//----------------------------------------------------
-//----------------------------------------------------
-//----------------------------------------------------
-//instantiate player and world
-let playerData = new gameObjectsFile.PlayerClass(
-  threeJsHelper.THREE,
-  threeJsHelper.worldRadius,
-  0,
-  0
-);
-// console.log("QQQ ", playerData);
-//------
-//add player to world
-threeJsHelper.scene.add(playerData.mesh);
-threeJsHelper.scene.add(playerData.wireLine);
-//----------------------------------------------------
-//----------------------------------------------------
-//----------------------------------------------------
-let cameraRadius = 180;
-let cameraLatitude = 12.46; //   degrees north (camera coords in world sphere)
-let cameraLongitude = 0; //   degrees east
-//----------------------------------------------------
-//----------------------------------------------------
-//----------------------------------------------------
-
-//-----
-const updateWorld = () => {
-  cameraLatitude += 0.01;
-  threeJsHelper.camera.rotateX(-0.01);
-  threeJsHelper.updateWorld(
-    playerData,
-    cameraRadius,
-    cameraLatitude,
-    cameraLongitude
-  );
-  // console.log("QQQ player info ", playerData);
-};
-//----------------------------------------------------
-//----------------------------------------------------
-//----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
@@ -63,34 +21,46 @@ document.addEventListener("keydown", (event) => {
     console.log("QQQ end of program.");
   }
 
-  // threeJsHelper.testCamRotation(event.key);
+  if (threeJsHelper.stopGame) return;
 
   //---------------------
   //---------------------
   //---------------------
   if (event.key === "a") {
     const startPoint = new threeJsHelper.THREE.Vector3(
-      playerData.mesh.position.x,
-      playerData.mesh.position.y,
-      playerData.mesh.position.z
+      threeJsHelper.playerData.mesh.position.x,
+      threeJsHelper.playerData.mesh.position.y,
+      threeJsHelper.playerData.mesh.position.z
     );
     const angle = -0.2;
-    threeJsHelper.worldGroup.rotateOnWorldAxis(startPoint.normalize(), angle);
+    threeJsHelper.worldGroupHolder.rotateOnWorldAxis(
+      startPoint.normalize(),
+      angle
+    );
   }
   if (event.key === "d") {
     const startPoint = new threeJsHelper.THREE.Vector3(
-      playerData.mesh.position.x,
-      playerData.mesh.position.y,
-      playerData.mesh.position.z
+      threeJsHelper.playerData.mesh.position.x,
+      threeJsHelper.playerData.mesh.position.y,
+      threeJsHelper.playerData.mesh.position.z
     );
     const angle = 0.2;
-    threeJsHelper.worldGroup.rotateOnWorldAxis(startPoint.normalize(), angle);
+    threeJsHelper.worldGroupHolder.rotateOnWorldAxis(
+      startPoint.normalize(),
+      angle
+    );
   }
 });
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
+//set game UI
+let startGameBtn = document.getElementById("start-game-btn");
+startGameBtn.addEventListener("click", () => {
+  threeJsHelper.startNewGame();
+});
+
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
@@ -182,14 +152,14 @@ function main() {
     }
 
     if (threeJsHelper.stopGame) {
-      window.cancelAnimationFrame(intervalId);
-    } else if (!threeJsHelper.stopUpdating) {
-      updateWorld();
-      //render results on screen
-      threeJsHelper.renderer.render(threeJsHelper.scene, threeJsHelper.camera);
-
-      intervalId = requestAnimationFrame(renderLoop);
+      //show main menu, clean world data
+    } else if (!threeJsHelper.stopUpdating && threeJsHelper.hasGameStarted) {
+      threeJsHelper.updateWorld();
     }
+    //render game on screen
+    threeJsHelper.renderer.render(threeJsHelper.scene, threeJsHelper.camera);
+
+    intervalId = requestAnimationFrame(renderLoop);
   }
 
   intervalId = requestAnimationFrame(renderLoop);
