@@ -13,15 +13,27 @@
   <body>
     <!--cannot bundle scripts without the module type -->
     <div id="game-UI-and-canvas-holder">
-      <div id="UIdiv">
-        <div id="main-menu-div">
-          <div>GAME TITLE</div>
-          <button id="start-game-btn">START GAME</button>
-        </div>
-        <div id="objectives-div">OBJECTIVES</div>
-        <div id="treasure-div">TREASURE</div>
+      <!--  -->
+      <div id="main-menu-div">
+        <div>GAME TITLE</div>
+        <button id="start-game-btn">START GAME</button>
       </div>
+      <!--  -->
+      <div id="game-stats-div">
+        <div id="objectives-div">
+          <img id="objectives-img" src="./greenSphere.png" alt="" />
+          <label id="objectives-progress-label" for="objectives-div"
+            >0/100</label
+          >
+        </div>
+        <div id="treasure-div">
+          <img id="treasure-img" src="./treasure_img.png" alt="" />
+          <label id="treasure-progress-label" for="treasure-div">0/100</label>
+        </div>
+      </div>
+      <!--  -->
       <canvas id="c" style="background-color: black"></canvas>
+      <!--  -->
     </div>
     <script type="module" src="/globals.js"></script>
     <script type="module" src="/gameObjectsCode.js"></script>

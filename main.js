@@ -55,7 +55,9 @@ document.addEventListener("keydown", (event) => {
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
-let UIDiv = document.getElementById("UIdiv");
+let mainmenudiv = document.getElementById("main-menu-div");
+let gameStatsDiv = document.getElementById("game-stats-div");
+// gameStatsDiv.style.visibility = "hidden";
 //set game UI
 let startGameBtn = document.getElementById("start-game-btn");
 startGameBtn.addEventListener("click", () => {
@@ -63,10 +65,13 @@ startGameBtn.addEventListener("click", () => {
     //clear data and start new game
     threeJsHelper.clearGameData();
   }
-  UIDiv.style.visibility = "hidden";
+  mainmenudiv.style.visibility = "hidden";
+  gameStatsDiv.style.visibility = "visible";
   threeJsHelper.startNewGame();
 });
 
+// fix bug when restarting game nothing is visible on the screen anymore, but still playable
+//don't hide objectives and treasure labels
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
@@ -159,7 +164,8 @@ function main() {
 
     if (threeJsHelper.stopGame) {
       //show main menu, clean world data
-      UIDiv.style.visibility = "visible";
+      mainmenudiv.style.visibility = "visible";
+      gameStatsDiv.style.visibility = "hidden";
     } else if (!threeJsHelper.stopUpdating && threeJsHelper.hasGameStarted) {
       threeJsHelper.updateWorld();
     }
