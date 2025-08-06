@@ -55,9 +55,15 @@ document.addEventListener("keydown", (event) => {
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
+let UIDiv = document.getElementById("UIdiv");
 //set game UI
 let startGameBtn = document.getElementById("start-game-btn");
 startGameBtn.addEventListener("click", () => {
+  if (threeJsHelper.stopGame) {
+    //clear data and start new game
+    threeJsHelper.clearGameData();
+  }
+  UIDiv.style.visibility = "hidden";
   threeJsHelper.startNewGame();
 });
 
@@ -153,6 +159,7 @@ function main() {
 
     if (threeJsHelper.stopGame) {
       //show main menu, clean world data
+      UIDiv.style.visibility = "visible";
     } else if (!threeJsHelper.stopUpdating && threeJsHelper.hasGameStarted) {
       threeJsHelper.updateWorld();
     }

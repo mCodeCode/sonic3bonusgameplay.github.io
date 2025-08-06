@@ -503,7 +503,25 @@ const startNewGame = () => {
 //----------------------------------------------------
 //----------------------------------------------------
 const clearGameData = () => {
+  scene.remove(worldGroupHolder);
+  scene.remove(playerData.mesh);
+  scene.remove(playerData.wireline);
+
+  worldGroupHolder = null;
+  worldHolder = null;
+  playerData = null;
+  obstaclesArr = [];
+  objectivesArr = [];
+  treasureArr = [];
+  treasureCollected = 0;
+  objectivesCompleted = 0;
   hasGameStarted = false;
+  stopGame = false;
+  stopUpdating = false;
+  totalTreasure = 0;
+  cameraRadius = 230;
+  cameraLatitude = 12.46; //   degrees north (camera coords in world sphere)
+  cameraLongitude = 0; //
   //cleans everything so that new game can be called and spawn a new world
 };
 //----------------------------------------------------
@@ -576,14 +594,8 @@ const clearGameData = () => {
 //----------------------------------------------------
 //----------------------------------------------------
 
-// const updateWorld = (
-//   playerData,
-//   cameraRadius,
-//   cameraLatitude,
-//   cameraLongitude
-// ) => {
 const updateWorld = () => {
-  console.log("QQQ updateWorld called");
+  // console.log("QQQ updateWorld called");
   //this will happen every frame
   //------------------------------
   //------------------------------
