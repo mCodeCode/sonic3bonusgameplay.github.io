@@ -26,6 +26,7 @@ let cameraSpherical = new THREE.Spherical();
 let gametitlediv = document.getElementById("game-title-div");
 let objectivesLabel = document.getElementById("objectives-progress-label");
 let treasureLabel = document.getElementById("treasure-progress-label");
+let shieldLabel = document.getElementById("shield-progress-label");
 
 //----------------------------------------------------
 //----------------------------------------------------
@@ -47,6 +48,9 @@ let totalTreasure = 0;
 let cameraRadius = 245;
 let cameraLatitude = 12.45; //   degrees north (camera coords in world sphere)
 let cameraLongitude = 0; //   degrees east
+let isShieldActive = false;
+let currentShieldCnt = 0;
+let shieldMax = 15;
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
@@ -526,6 +530,7 @@ const startNewGame = () => {
 
   objectivesLabel.innerText = `${objectivesCompleted}/${objectivesArr.length}`;
   treasureLabel.innerText = `${treasureCollected}/${totalTreasure}`;
+  shieldLabel.innerText = `${0}/${shieldMax}`;
 
   hasGameStarted = true;
   stopUpdating = false;
@@ -618,6 +623,9 @@ const clearGameData = () => {
   cameraRadius = 245;
   cameraLatitude = 12.45; //   degrees north (camera coords in world sphere)
   cameraLongitude = 0;
+  isShieldActive = false;
+  currentShieldCnt = 0;
+  shieldMax = 15;
   //cleans everything so that new game can be called and spawn a new world
 };
 //----------------------------------------------------
@@ -748,11 +756,18 @@ const updateWorld = () => {
   //obstacles
   let playerCol = checkOverlapOnUpdate(playerData, obstaclesArr);
   if (playerCol.length > 0 && playerCol[0].distance <= 2) {
-    // console.log("QQQ UI GAME OVER");
-    gametitlediv.innerText = "GAME OVER";
-    stopGame = true;
-    hasGameStarted = false;
-    stopUpdating = true;
+    if (!isShieldActive) {
+      gametitlediv.innerText = "GAME OVER";
+      stopGame = true;
+      hasGameStarted = false;
+      stopUpdating = true;
+    } else {
+      isShieldActive = false;
+      currentShieldCnt = 0;
+      playerData.mesh.material.color.setHex(0x000000);
+      playerData.wireLine.material.color.setHex(0xffffff);
+      shieldLabel.innerText = `${currentShieldCnt}/${shieldMax}`;
+    }
   }
 
   //objectives
@@ -762,22 +777,29 @@ const updateWorld = () => {
     let currColor = playerCol[0].object.material.color;
     if (currColor.r === 1 && currColor.g === 0 && currColor.b === 0) {
       //the objective has already been completed before, so game over
-      // console.log("QQQ UI GAME OVER");
-      gametitlediv.innerText = "GAME OVER";
-      stopGame = true;
-      hasGameStarted = false;
-      stopUpdating = true;
+      if (!isShieldActive) {
+        gametitlediv.innerText = "GAME OVER";
+        stopGame = true;
+        hasGameStarted = false;
+        stopUpdating = true;
+      } else {
+        isShieldActive = false;
+        currentShieldCnt = 0;
+        playerData.mesh.material.color.setHex(0x000000);
+        playerData.wireLine.material.color.setHex(0xffffff);
+        shieldLabel.innerText = `${currentShieldCnt}/${shieldMax}`;
+      }
     }
+
+    playerCol[0].object.material.color.setRGB(1, 0, 0);
+    objectivesCompleted += 1;
+    objectivesLabel.innerText = `${objectivesCompleted}/${objectivesArr.length}`;
 
     if (objectivesCompleted === objectivesArr.length) {
       gametitlediv.innerText = "YOU WIN!";
       stopGame = true;
       hasGameStarted = false;
       stopUpdating = true;
-    } else {
-      playerCol[0].object.material.color.setRGB(1, 0, 0);
-      objectivesCompleted += 1;
-      objectivesLabel.innerText = `${objectivesCompleted}/${objectivesArr.length}`;
     }
   }
 
@@ -788,7 +810,14 @@ const updateWorld = () => {
 
   if (playerCol.length > 0 && playerCol[0].distance <= 3) {
     treasureCollected += 1;
+    currentShieldCnt += currentShieldCnt === shieldMax ? 0 : 1;
+    if (currentShieldCnt === shieldMax) {
+      isShieldActive = true;
+      playerData.mesh.material.color.setHex(0xf7d705);
+      playerData.wireLine.material.color.setHex(0x000000);
+    }
     treasureLabel.innerText = `${treasureCollected}/${totalTreasure}`;
+    shieldLabel.innerText = `${currentShieldCnt}/${shieldMax}`;
     idToDelete = playerCol[0].object.uuid;
     worldGroupHolder.remove(playerCol[0].object);
     scene.remove(playerCol[0].object);

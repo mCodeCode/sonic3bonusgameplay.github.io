@@ -57,7 +57,7 @@ document.addEventListener("keydown", (event) => {
 //----------------------------------------------------
 let mainmenudiv = document.getElementById("main-menu-div");
 let gameStatsDiv = document.getElementById("game-stats-div");
-// gameStatsDiv.style.visibility = "hidden";
+gameStatsDiv.style.visibility = "hidden";
 //set game UI
 let startGameBtn = document.getElementById("start-game-btn");
 

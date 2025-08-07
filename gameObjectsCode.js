@@ -80,7 +80,7 @@ class customGameObj {
           transparent: true,
           opacity: 0.8,
         });
-        playergeometry = new ThreeJsInstance.SphereGeometry(5, 16, 8);
+        playergeometry = new ThreeJsInstance.SphereGeometry(6, 16, 8);
         customWorldRadius = worldRadius + 5;
         break;
       case "treasure":
