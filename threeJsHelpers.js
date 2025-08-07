@@ -19,14 +19,12 @@ const camera = new THREE.PerspectiveCamera(
 );
 const canvas = document.querySelector("#c");
 const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
-renderer.setSize(window.innerWidth, window.innerHeight - 5);
-camera.position.x = 0;
-camera.position.y = 0;
-camera.position.z = 350; //350
+renderer.setSize(window.innerWidth, window.innerHeight);
 
-const cameraSpherical = new THREE.Spherical();
-camera.rotateX(0.5);
-camera.rotateY(22);
+let cameraSpherical = new THREE.Spherical();
+
+let objectivesLabel = document.getElementById("objectives-progress-label");
+let treasureLabel = document.getElementById("treasure-progress-label");
 
 //----------------------------------------------------
 //----------------------------------------------------
@@ -45,8 +43,8 @@ let hasGameStarted = false;
 let stopGame = false;
 let stopUpdating = false;
 let totalTreasure = 0;
-let cameraRadius = 230;
-let cameraLatitude = 12.46; //   degrees north (camera coords in world sphere)
+let cameraRadius = 245;
+let cameraLatitude = 12.45; //   degrees north (camera coords in world sphere)
 let cameraLongitude = 0; //   degrees east
 //----------------------------------------------------
 //----------------------------------------------------
@@ -468,6 +466,33 @@ const spawnTreasure = (
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
+const setCamera = (resetCamera) => {
+  if (resetCamera) {
+    camera.position.x = 0;
+    camera.position.y = 0;
+    camera.position.z = 0;
+    camera.rotation.x = 0;
+    camera.rotation.y = 0;
+    camera.rotation.z = 0;
+  } else {
+    camera.position.x = 0;
+    camera.position.y = 0;
+    camera.position.z = 350; //350
+    camera.rotateX(0.5);
+    camera.rotateY(22);
+  }
+
+  cameraSpherical = new THREE.Spherical();
+  cameraSpherical.set(cameraRadius, cameraLatitude, cameraLongitude);
+  const pointOnWorldSphere = new THREE.Vector3();
+  pointOnWorldSphere.setFromSpherical(cameraSpherical);
+  //--------------
+  camera.position.set(
+    pointOnWorldSphere.x,
+    pointOnWorldSphere.y,
+    pointOnWorldSphere.z
+  );
+};
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
@@ -493,9 +518,54 @@ const startNewGame = () => {
   );
   //-----
   totalTreasure = treasureArr.length;
+  //-----
+  setCamera(false);
+  //-----
   scene.add(worldGroupHolder);
 
+  objectivesLabel.innerText = `${objectivesCompleted}/${objectivesArr.length}`;
+  treasureLabel.innerText = `${treasureCollected}/${totalTreasure}`;
+
   hasGameStarted = true;
+  stopUpdating = false;
+};
+//----------------------------------------------------
+//----------------------------------------------------
+//----------------------------------------------------
+//----------------------------------------------------
+//----------------------------------------------------
+const cleanMaterial = (material) => {
+  material.dispose();
+
+  // dispose textures
+  for (const key of Object.keys(material)) {
+    const value = material[key];
+    if (value && typeof value === "object" && "minFilter" in value) {
+      value.dispose();
+    }
+  }
+};
+//----------------------------------------------------
+//----------------------------------------------------
+//----------------------------------------------------
+//----------------------------------------------------
+//----------------------------------------------------
+const clearScene = () => {
+  renderer.dispose();
+
+  scene.traverse((object) => {
+    if (!object.isMesh) return;
+
+    // console.log("QQQ dispose geometry!");
+    object.geometry.dispose();
+
+    if (object.material.isMaterial) {
+      cleanMaterial(object.material);
+    } else {
+      // an array of materials
+      for (const material of object.material) cleanMaterial(material);
+    }
+  });
 };
 //----------------------------------------------------
 //----------------------------------------------------
@@ -503,9 +573,14 @@ const startNewGame = () => {
 //----------------------------------------------------
 //----------------------------------------------------
 const clearGameData = () => {
-  scene.remove(worldGroupHolder);
+  worldGroupHolder.remove(playerData.mesh);
+  worldGroupHolder.remove(playerData.wireline);
   scene.remove(playerData.mesh);
   scene.remove(playerData.wireline);
+  scene.remove(worldHolder);
+  scene.remove(worldGroupHolder);
+  clearScene();
+  setCamera(true);
 
   worldGroupHolder = null;
   worldHolder = null;
@@ -517,11 +592,11 @@ const clearGameData = () => {
   objectivesCompleted = 0;
   hasGameStarted = false;
   stopGame = false;
-  stopUpdating = false;
+  stopUpdating = true;
   totalTreasure = 0;
-  cameraRadius = 230;
-  cameraLatitude = 12.46; //   degrees north (camera coords in world sphere)
-  cameraLongitude = 0; //
+  cameraRadius = 245;
+  cameraLatitude = 12.45; //   degrees north (camera coords in world sphere)
+  cameraLongitude = 0;
   //cleans everything so that new game can be called and spawn a new world
 };
 //----------------------------------------------------
@@ -595,7 +670,6 @@ const clearGameData = () => {
 //----------------------------------------------------
 
 const updateWorld = () => {
-  // console.log("QQQ updateWorld called");
   //this will happen every frame
   //------------------------------
   //------------------------------
@@ -653,8 +727,10 @@ const updateWorld = () => {
   //obstacles
   let playerCol = checkOverlapOnUpdate(playerData, obstaclesArr);
   if (playerCol.length > 0 && playerCol[0].distance <= 2) {
-    console.log("QQQ UI GAME OVER");
+    // console.log("QQQ UI GAME OVER");
     stopGame = true;
+    hasGameStarted = false;
+    stopUpdating = true;
   }
 
   //objectives
@@ -664,27 +740,24 @@ const updateWorld = () => {
     let currColor = playerCol[0].object.material.color;
     if (currColor.r === 1 && currColor.g === 0 && currColor.b === 0) {
       //the objective has already been completed before, so game over
-      console.log("QQQ UI GAME OVER");
+      // console.log("QQQ UI GAME OVER");
       stopGame = true;
+      hasGameStarted = false;
+      stopUpdating = true;
     }
     playerCol[0].object.material.color.setRGB(1, 0, 0);
     objectivesCompleted += 1;
-    console.log(
-      `QQQ Objectives completed:  ${objectivesCompleted} / ${objectivesArr.length}`
-    );
+    objectivesLabel.innerText = `${objectivesCompleted}/${objectivesArr.length}`;
   }
 
   //treasure
   playerCol = undefined;
   let idToDelete = null;
   playerCol = checkOverlapOnUpdate(playerData, treasureArr);
-  // console.log("QQQ playerCol ", playerCol);
+
   if (playerCol.length > 0 && playerCol[0].distance <= 3) {
     treasureCollected += 1;
-    // console.log(`QQQ playerCol[0].distance`, playerCol[0].distance);
-    console.log(
-      `QQQ Treasure collected:  ${treasureCollected} / ${totalTreasure}`
-    );
+    treasureLabel.innerText = `${treasureCollected}/${totalTreasure}`;
     idToDelete = playerCol[0].object.uuid;
     worldGroupHolder.remove(playerCol[0].object);
     scene.remove(playerCol[0].object);

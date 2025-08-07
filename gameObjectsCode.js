@@ -57,11 +57,6 @@ class customGameObj {
   wireline = null;
 
   constructor(ThreeJsInstance, worldRadius, latitude, longitude, entityType) {
-    // const texture2File = loader.load("./files/blue_night_floor.png");
-    // const texture2 = new ThreeJsInstance.MeshBasicMaterial({
-    //   map: texture2File,
-    // });
-    // let texture2File = null;
     let texture2 = null;
     let playergeometry = null;
     this.entityType = entityType;

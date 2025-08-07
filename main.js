@@ -21,7 +21,7 @@ document.addEventListener("keydown", (event) => {
     console.log("QQQ end of program.");
   }
 
-  if (threeJsHelper.stopGame) return;
+  if (!threeJsHelper.hasGameStarted) return;
 
   //---------------------
   //---------------------
@@ -64,10 +64,14 @@ startGameBtn.addEventListener("click", () => {
   if (threeJsHelper.stopGame) {
     //clear data and start new game
     threeJsHelper.clearGameData();
+    mainmenudiv.style.visibility = "hidden";
+    gameStatsDiv.style.visibility = "visible";
+    threeJsHelper.startNewGame();
+  } else {
+    mainmenudiv.style.visibility = "hidden";
+    gameStatsDiv.style.visibility = "visible";
+    threeJsHelper.startNewGame();
   }
-  mainmenudiv.style.visibility = "hidden";
-  gameStatsDiv.style.visibility = "visible";
-  threeJsHelper.startNewGame();
 });
 
 // fix bug when restarting game nothing is visible on the screen anymore, but still playable
@@ -163,10 +167,12 @@ function main() {
     }
 
     if (threeJsHelper.stopGame) {
+      // console.log("QQQ game ended ");
       //show main menu, clean world data
       mainmenudiv.style.visibility = "visible";
       gameStatsDiv.style.visibility = "hidden";
     } else if (!threeJsHelper.stopUpdating && threeJsHelper.hasGameStarted) {
+      // console.log("QQQ game is running ");
       threeJsHelper.updateWorld();
     }
     //render game on screen

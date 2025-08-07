@@ -11,12 +11,24 @@
     </style>
   </head>
   <body>
+    <!--  -->
+    <canvas id="c" style="background-color: black; position: absolute"></canvas>
+    <!--  -->
     <!--cannot bundle scripts without the module type -->
     <div id="game-UI-and-canvas-holder">
       <!--  -->
       <div id="main-menu-div">
-        <div>GAME TITLE</div>
-        <button id="start-game-btn">START GAME</button>
+        <div id="game-title-div">SPHERE GAME</div>
+        <div id="start-game-btn" class="buttons">
+          <button class="btn">
+            <span></span>
+            <p
+              data-start="good luck!"
+              data-text="start!"
+              data-title="new game"
+            ></p>
+          </button>
+        </div>
       </div>
       <!--  -->
       <div id="game-stats-div">
@@ -31,9 +43,6 @@
           <label id="treasure-progress-label" for="treasure-div">0/100</label>
         </div>
       </div>
-      <!--  -->
-      <canvas id="c" style="background-color: black"></canvas>
-      <!--  -->
     </div>
     <script type="module" src="/globals.js"></script>
     <script type="module" src="/gameObjectsCode.js"></script>
