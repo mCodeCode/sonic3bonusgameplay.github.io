@@ -571,6 +571,19 @@ const clearScene = () => {
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
+const resetPlayer = () => {
+  playerData.radius = 0;
+  playerData.latitude = 0;
+  playerData.longitude = 0;
+  playerData.spherical = null;
+  playerData.mesh = null;
+  playerData.wireLine = null;
+};
+//----------------------------------------------------
+//----------------------------------------------------
+//----------------------------------------------------
+//----------------------------------------------------
+//----------------------------------------------------
 //----------------------------------------------------
 const clearGameData = () => {
   worldGroupHolder.remove(playerData.mesh);
@@ -580,7 +593,12 @@ const clearGameData = () => {
   scene.remove(worldHolder);
   scene.remove(worldGroupHolder);
   clearScene();
+  resetPlayer();
   setCamera(true);
+
+  while (scene.children.length) {
+    scene.remove(scene.children[0]);
+  }
 
   worldGroupHolder = null;
   worldHolder = null;
