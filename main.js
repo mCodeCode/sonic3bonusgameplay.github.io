@@ -3,6 +3,82 @@ import * as threeJsHelper from "./threeJsHelpers.js";
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
+const movePlayerAKey = () => {
+  const startPoint = new threeJsHelper.THREE.Vector3(
+    threeJsHelper.playerData.mesh.position.x,
+    threeJsHelper.playerData.mesh.position.y,
+    threeJsHelper.playerData.mesh.position.z
+  );
+  const angle = -0.2;
+  threeJsHelper.worldGroupHolder.rotateOnWorldAxis(
+    startPoint.normalize(),
+    angle
+  );
+};
+//----------------------------------------------------
+//----------------------------------------------------
+//----------------------------------------------------
+//----------------------------------------------------
+//----------------------------------------------------
+//----------------------------------------------------
+const movePlayerDKey = () => {
+  const startPoint = new threeJsHelper.THREE.Vector3(
+    threeJsHelper.playerData.mesh.position.x,
+    threeJsHelper.playerData.mesh.position.y,
+    threeJsHelper.playerData.mesh.position.z
+  );
+  const angle = 0.2;
+  threeJsHelper.worldGroupHolder.rotateOnWorldAxis(
+    startPoint.normalize(),
+    angle
+  );
+};
+//----------------------------------------------------
+//----------------------------------------------------
+//----------------------------------------------------
+const el = document.getElementById("c");
+el.addEventListener("touchstart", (event) => {
+  event.preventDefault();
+  const touches = event.changedTouches;
+  for (let i = 0; i < touches.length; i++) {
+    const touch = touches[i];
+    // mainmenudiv.innerText = `X: ${touch.clientX} --- Y: ${touch.clientY} `;
+    if (touch.clientX < window.innerWidth / 2) {
+      movePlayerAKey();
+    } else if (touch.clientX > window.innerWidth / 2) {
+      movePlayerDKey();
+    }
+  }
+});
+//----------------------------------------------------
+//----------------------------------------------------
+//----------------------------------------------------
+//----------------------------------------------------
+
+let mainmenudiv = document.getElementById("main-menu-div");
+let gameStatsDiv = document.getElementById("game-stats-div");
+gameStatsDiv.style.visibility = "hidden";
+//set game UI
+let startGameBtn = document.getElementById("start-game-btn");
+
+startGameBtn.addEventListener("click", () => {
+  if (threeJsHelper.stopGame) {
+    //clear data and start new game
+    threeJsHelper.clearGameData();
+    mainmenudiv.style.visibility = "hidden";
+    gameStatsDiv.style.visibility = "visible";
+    threeJsHelper.startNewGame();
+  } else {
+    mainmenudiv.style.visibility = "hidden";
+    gameStatsDiv.style.visibility = "visible";
+    threeJsHelper.startNewGame();
+  }
+});
+//----------------------------------------------------
+//----------------------------------------------------
+//----------------------------------------------------
+//----------------------------------------------------
+//----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
@@ -27,59 +103,13 @@ document.addEventListener("keydown", (event) => {
   //---------------------
   //---------------------
   if (event.key === "a") {
-    const startPoint = new threeJsHelper.THREE.Vector3(
-      threeJsHelper.playerData.mesh.position.x,
-      threeJsHelper.playerData.mesh.position.y,
-      threeJsHelper.playerData.mesh.position.z
-    );
-    const angle = -0.2;
-    threeJsHelper.worldGroupHolder.rotateOnWorldAxis(
-      startPoint.normalize(),
-      angle
-    );
+    movePlayerAKey();
   }
   if (event.key === "d") {
-    const startPoint = new threeJsHelper.THREE.Vector3(
-      threeJsHelper.playerData.mesh.position.x,
-      threeJsHelper.playerData.mesh.position.y,
-      threeJsHelper.playerData.mesh.position.z
-    );
-    const angle = 0.2;
-    threeJsHelper.worldGroupHolder.rotateOnWorldAxis(
-      startPoint.normalize(),
-      angle
-    );
-  }
-});
-//----------------------------------------------------
-//----------------------------------------------------
-//----------------------------------------------------
-//----------------------------------------------------
-let mainmenudiv = document.getElementById("main-menu-div");
-let gameStatsDiv = document.getElementById("game-stats-div");
-gameStatsDiv.style.visibility = "hidden";
-//set game UI
-let startGameBtn = document.getElementById("start-game-btn");
-
-startGameBtn.addEventListener("click", () => {
-  if (threeJsHelper.stopGame) {
-    //clear data and start new game
-    threeJsHelper.clearGameData();
-    mainmenudiv.style.visibility = "hidden";
-    gameStatsDiv.style.visibility = "visible";
-    threeJsHelper.startNewGame();
-  } else {
-    mainmenudiv.style.visibility = "hidden";
-    gameStatsDiv.style.visibility = "visible";
-    threeJsHelper.startNewGame();
+    movePlayerDKey();
   }
 });
 
-// fix bug when restarting game nothing is visible on the screen anymore, but still playable
-//don't hide objectives and treasure labels
-//----------------------------------------------------
-//----------------------------------------------------
-//----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
 //----------------------------------------------------
