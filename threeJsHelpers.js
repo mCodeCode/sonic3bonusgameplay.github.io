@@ -23,6 +23,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 
 let cameraSpherical = new THREE.Spherical();
 
+let gametitlediv = document.getElementById("game-title-div");
 let objectivesLabel = document.getElementById("objectives-progress-label");
 let treasureLabel = document.getElementById("treasure-progress-label");
 
@@ -600,6 +601,8 @@ const clearGameData = () => {
     scene.remove(scene.children[0]);
   }
 
+  gametitlediv.innerText = "SPHERE GAME";
+
   worldGroupHolder = null;
   worldHolder = null;
   playerData = null;
@@ -746,6 +749,7 @@ const updateWorld = () => {
   let playerCol = checkOverlapOnUpdate(playerData, obstaclesArr);
   if (playerCol.length > 0 && playerCol[0].distance <= 2) {
     // console.log("QQQ UI GAME OVER");
+    gametitlediv.innerText = "GAME OVER";
     stopGame = true;
     hasGameStarted = false;
     stopUpdating = true;
@@ -759,13 +763,22 @@ const updateWorld = () => {
     if (currColor.r === 1 && currColor.g === 0 && currColor.b === 0) {
       //the objective has already been completed before, so game over
       // console.log("QQQ UI GAME OVER");
+      gametitlediv.innerText = "GAME OVER";
       stopGame = true;
       hasGameStarted = false;
       stopUpdating = true;
     }
-    playerCol[0].object.material.color.setRGB(1, 0, 0);
-    objectivesCompleted += 1;
-    objectivesLabel.innerText = `${objectivesCompleted}/${objectivesArr.length}`;
+
+    if (objectivesCompleted === objectivesArr.length) {
+      gametitlediv.innerText = "YOU WIN!";
+      stopGame = true;
+      hasGameStarted = false;
+      stopUpdating = true;
+    } else {
+      playerCol[0].object.material.color.setRGB(1, 0, 0);
+      objectivesCompleted += 1;
+      objectivesLabel.innerText = `${objectivesCompleted}/${objectivesArr.length}`;
+    }
   }
 
   //treasure

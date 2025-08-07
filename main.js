@@ -60,6 +60,7 @@ let gameStatsDiv = document.getElementById("game-stats-div");
 // gameStatsDiv.style.visibility = "hidden";
 //set game UI
 let startGameBtn = document.getElementById("start-game-btn");
+
 startGameBtn.addEventListener("click", () => {
   if (threeJsHelper.stopGame) {
     //clear data and start new game
